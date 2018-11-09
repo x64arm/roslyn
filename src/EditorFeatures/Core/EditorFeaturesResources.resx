@@ -830,4 +830,55 @@ Do you want to proceed?</value>
   <data name="Paste_Tracking" xml:space="preserve">
     <value>Paste Tracking</value>
   </data>
+  <data name="Symbol_Static" xml:space="preserve">
+    <value>Symbol - Static</value>
+  </data>
+  <data name="Invalid_assembly_name" xml:space="preserve">
+    <value>Invalid assembly name</value>
+  </data>
+  <data name="Invalid_characters_in_assembly_name" xml:space="preserve">
+    <value>Invalid characters in assembly name</value>
+  </data>
+  <data name="User_Symbols_Constants" xml:space="preserve">
+    <value>User Symbols - Constants</value>
+  </data>
+  <data name="User_Symbols_Enum_Members" xml:space="preserve">
+    <value>User Symbols - Enum Members</value>
+  </data>
+  <data name="User_Symbols_Events" xml:space="preserve">
+    <value>User Symbols - Events</value>
+  </data>
+  <data name="User_Symbols_Extension_Methods" xml:space="preserve">
+    <value>User Symbols - Extension Methods</value>
+  </data>
+  <data name="User_Symbols_Fields" xml:space="preserve">
+    <value>User Symbols - Fields</value>
+  </data>
+  <data name="User_Symbols_Locals" xml:space="preserve">
+    <value>User Symbols - Locals</value>
+  </data>
+  <data name="User_Symbols_Methods" xml:space="preserve">
+    <value>User Symbols - Methods</value>
+  </data>
+  <data name="User_Symbols_Namespaces" xml:space="preserve">
+    <value>User Symbols - Namespaces</value>
+  </data>
+  <data name="User_Symbols_Parameters" xml:space="preserve">
+    <value>User Symbols - Parameters</value>
+  </data>
+  <data name="User_Symbols_Properties" xml:space="preserve">
+    <value>User Symbols - Properties</value>
+  </data>
+  <data name="Operator_Overload" xml:space="preserve">
+    <value>Operator - Overload</value>
+  </data>
+  <data name="User_Symbols_Labels" xml:space="preserve">
+    <value>User Symbols - Labels</value>
+  </data>
+  <data name="Keyword_Control" xml:space="preserve">
+    <value>Keyword - Control</value>
+  </data>
+  <data name="User_Symbols_Label_Name" xml:space="preserve">
+    <value>User Symbols - Label Name</value>
+  </data>
 </root>

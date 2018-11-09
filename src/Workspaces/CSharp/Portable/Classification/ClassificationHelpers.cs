@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis.Classification;
 using Microsoft.CodeAnalysis.CSharp.Extensions;
@@ -29,7 +30,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Classification
             {
                 return ClassificationTypeNames.Identifier;
             }
-            if (SyntaxFacts.IsKeywordKind(token.Kind()))
+            if (IsControlKeyword(token))
+            {
+                return ClassificationTypeNames.ControlKeyword;
+            }
+            else if (SyntaxFacts.IsKeywordKind(token.Kind()))
             {
                 return ClassificationTypeNames.Keyword;
             }
@@ -53,6 +58,30 @@ namespace Microsoft.CodeAnalysis.CSharp.Classification
             }
 
             return null;
+        }
+
+        private static bool IsControlKeyword(SyntaxToken token)
+        {
+            if (!SyntaxFacts.IsControlKeyword(token.Kind()))
+            {
+                return false;
+            }
+
+            if (token.Parent is null)
+            {
+                return true;
+            }
+
+            if (token.IsKind(SyntaxKind.DefaultKeyword))
+            {
+                return token.Parent.IsKind(SyntaxKind.DefaultSwitchLabel);
+            }
+            else if (token.IsKind(SyntaxKind.CaseKeyword))
+            {
+                return token.Parent.IsKind(SyntaxKind.CaseSwitchLabel, SyntaxKind.CasePatternSwitchLabel);
+            }
+
+            return SyntaxFacts.IsControlStatement(token.Parent.Kind());
         }
 
         private static bool IsStringToken(SyntaxToken token)
@@ -100,6 +129,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Classification
                         return interpolatedString != null
                             && interpolatedString.StringStartToken.IsKind(SyntaxKind.InterpolatedVerbatimStringStartToken);
                     }
+
             }
 
             return false;
@@ -146,6 +176,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Classification
                 }
                 return ClassificationTypeNames.LocalName;
             }
+            else if (token.Parent is SingleVariableDesignationSyntax singleVariableDesignation && singleVariableDesignation.Identifier == token)
+            {
+                return ClassificationTypeNames.LocalName;
+            }
             else if (token.Parent is ParameterSyntax parameterSyntax && parameterSyntax.Identifier == token)
             {
                 return ClassificationTypeNames.ParameterName;
@@ -162,10 +196,37 @@ namespace Microsoft.CodeAnalysis.CSharp.Classification
             {
                 return ClassificationTypeNames.Keyword;
             }
+            else if (token.Parent is ExternAliasDirectiveSyntax externAliasDirectiveSyntax && externAliasDirectiveSyntax.Identifier == token)
+            {
+                return ClassificationTypeNames.NamespaceName;
+            }
+            else if (token.Parent is LabeledStatementSyntax labledStatementSyntax && labledStatementSyntax.Identifier == token)
+            {
+                return ClassificationTypeNames.LabelName;
+            }
             else
             {
                 return ClassificationTypeNames.Identifier;
             }
+        }
+
+        public static bool IsStaticallyDeclared(SyntaxToken token)
+        {
+            var parentNode = token.Parent;
+
+            if (parentNode.IsKind(SyntaxKind.EnumMemberDeclaration))
+            {
+                return false; // TODO: Since Enum members are always static is it useful to classify them as static?
+            }
+            else if (parentNode.IsKind(SyntaxKind.VariableDeclarator))
+            {
+                // The parent of a VariableDeclartor is a VariableDeclarationSyntax node.
+                // It's parent will be the declaration syntax node.
+                parentNode = parentNode.Parent.Parent;
+                return parentNode.GetModifiers().Any(modifier => modifier.IsKind(SyntaxKind.StaticKeyword, SyntaxKind.ConstKeyword));
+            }
+
+            return parentNode.GetModifiers().Any(SyntaxKind.StaticKeyword);
         }
 
         private static bool IsExtensionMethod(MethodDeclarationSyntax methodDeclaration)

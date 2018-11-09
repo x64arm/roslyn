@@ -16,7 +16,10 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Classification
         ''' <returns>The classification type for the token</returns>
         ''' <remarks></remarks>
         Public Function GetClassification(token As SyntaxToken) As String
-            If SyntaxFacts.IsKeywordKind(token.Kind) Then
+
+            If IsControlKeyword(token) Then
+                Return ClassificationTypeNames.ControlKeyword
+            ElseIf SyntaxFacts.IsKeywordKind(token.Kind) Then
                 Return ClassificationTypeNames.Keyword
             ElseIf IsStringToken(token) Then
                 Return ClassificationTypeNames.StringLiteral
@@ -48,6 +51,26 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Classification
             Else
                 Return Contract.FailWithReturn(Of String)("Unhandled token kind: " & token.Kind().ToString())
             End If
+        End Function
+
+        Private Function IsControlKeyword(token As SyntaxToken) As Boolean
+            If (token.Parent Is Nothing) Then
+                Return SyntaxFacts.IsControlKeyword(token.Kind)
+            End If
+
+            ' For Exit Statments classify everything as a control keyword
+            If token.Parent.IsKind(
+                SyntaxKind.ExitFunctionStatement,
+                SyntaxKind.ExitOperatorStatement,
+                SyntaxKind.ExitPropertyStatement,
+                SyntaxKind.ExitSubStatement) Then
+                Return True
+            End If
+
+            ' Control keyword are used in other contexts so check that it is
+            ' being used in a supported context.
+            Return SyntaxFacts.IsControlKeyword(token.Kind) AndAlso
+                SyntaxFacts.IsControlStatement(token.Parent.Kind)
         End Function
 
         Private Function ClassifyPunctuation(token As SyntaxToken) As String
@@ -92,6 +115,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Classification
                 Return ClassificationTypeNames.EventName
             ElseIf TypeOf parent Is EnumMemberDeclarationSyntax AndAlso DirectCast(parent, EnumMemberDeclarationSyntax).Identifier = identifier Then
                 Return ClassificationTypeNames.EnumMemberName
+            ElseIf TypeOf parent Is LabelStatementSyntax AndAlso DirectCast(parent, LabelStatementSyntax).LabelToken = identifier Then
+                Return ClassificationTypeNames.LabelName
             ElseIf TryClassifyModifiedIdentifer(parent, identifier, classification) Then
                 Return classification
             ElseIf (identifier.ToString() = "IsTrue" OrElse identifier.ToString() = "IsFalse") AndAlso
@@ -101,6 +126,23 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Classification
             End If
 
             Return ClassificationTypeNames.Identifier
+        End Function
+
+        Public Function IsStaticallyDeclared(identifier As SyntaxToken) As Boolean
+            'Note: parent might be Nothing, if we are classifying raw tokens.
+            Dim parent = identifier.Parent
+
+            If parent.IsKind(SyntaxKind.EnumMemberDeclaration) Then
+                Return False ' TODO: Since Enum members are always static is it useful to classify them as static?
+            ElseIf parent.IsKind(SyntaxKind.ModifiedIdentifier) Then
+                parent = parent.Parent?.Parent
+
+                ' We are specifically looking for field declarations or constants.
+                Return parent.IsKind(SyntaxKind.FieldDeclaration) AndAlso
+                    parent.GetModifiers().Any(Function(modifier) modifier.IsKind(SyntaxKind.SharedKeyword, SyntaxKind.ConstKeyword))
+            End If
+
+            Return parent.GetModifiers().Any(SyntaxKind.SharedKeyword)
         End Function
 
         Private Function IsStringToken(token As SyntaxToken) As Boolean

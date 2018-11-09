@@ -37,26 +37,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Classification.Classifiers
             ArrayBuilder<ClassifiedSpan> result,
             CancellationToken cancellationToken)
         {
-            if (!IsNamespaceName(name))
-            {
-                var symbolInfo = semanticModel.GetSymbolInfo(name, cancellationToken);
+            var symbolInfo = semanticModel.GetSymbolInfo(name, cancellationToken);
 
-                var _ =
-                    TryClassifySymbol(name, symbolInfo, semanticModel, result, cancellationToken) ||
-                    TryClassifyFromIdentifier(name, symbolInfo, result) ||
-                    TryClassifyValueIdentifier(name, symbolInfo, result) ||
-                    TryClassifyNameOfIdentifier(name, symbolInfo, result);
-            }
-        }
-
-        private static bool IsNamespaceName(NameSyntax name)
-        {
-            while (name.Parent is NameSyntax)
-            {
-                name = (NameSyntax)name.Parent;
-            }
-
-            return name.IsParentKind(SyntaxKind.NamespaceDeclaration);
+            var _ =
+                TryClassifySymbol(name, symbolInfo, semanticModel, result, cancellationToken) ||
+                TryClassifyAsNamespace(name, symbolInfo, result) ||
+                TryClassifyFromIdentifier(name, symbolInfo, result) ||
+                TryClassifyValueIdentifier(name, symbolInfo, result) ||
+                TryClassifyNameOfIdentifier(name, symbolInfo, result);
         }
 
         private bool TryClassifySymbol(
@@ -77,6 +65,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Classification.Classifiers
             if (TryClassifySymbol(name, symbol, semanticModel, cancellationToken, out var classifiedSpan))
             {
                 result.Add(classifiedSpan);
+
+                if (classifiedSpan.ClassificationType != ClassificationTypeNames.Keyword)
+                {
+                    // Additionally classify static symbols
+                    TryClassifyStaticSymbol(symbol, classifiedSpan.TextSpan, result);
+                }
+
                 return true;
             }
 
@@ -116,6 +111,31 @@ namespace Microsoft.CodeAnalysis.CSharp.Classification.Classifiers
             }
         }
 
+        private void TryClassifyStaticSymbol(
+            ISymbol symbol,
+            Text.TextSpan span,
+            ArrayBuilder<ClassifiedSpan> result)
+        {
+            if (symbol is null || !symbol.IsStatic)
+            {
+                return;
+            }
+
+            var isEnumMember = symbol.IsKind(SymbolKind.Field) && symbol.ContainingType.IsEnumType();
+            if (isEnumMember) // TODO: Since Enum members are always static is it useful to classify them as static?
+            {
+                return;
+            }
+
+            var isNamespace = symbol.IsKind(SymbolKind.Namespace);
+            if (isNamespace) // TODO: Since Namespaces are always static is it useful to classify them as static?
+            {
+                return;
+            }
+
+            result.Add(new ClassifiedSpan(span, ClassificationTypeNames.StaticSymbol));
+        }
+
         private bool TryClassifySymbol(
             NameSyntax name,
             ISymbol symbol,
@@ -123,6 +143,22 @@ namespace Microsoft.CodeAnalysis.CSharp.Classification.Classifiers
             CancellationToken cancellationToken,
             out ClassifiedSpan classifiedSpan)
         {
+            if (symbol is INamespaceSymbol namespaceSymbol
+                && name is IdentifierNameSyntax identifierNameSyntax)
+            {
+                // Do not classify the global:: namespace. It is already classified as a keyword.
+                var isGlobalNamespace = namespaceSymbol.IsGlobalNamespace
+                    && identifierNameSyntax.Identifier.IsKind(SyntaxKind.GlobalKeyword);
+                if (isGlobalNamespace)
+                {
+                    classifiedSpan = default;
+                    return false;
+                }
+
+                classifiedSpan = new ClassifiedSpan(name.Span, ClassificationTypeNames.NamespaceName);
+                return true;
+            }
+
             // Classify a reference to an attribute constructor in an attribute location
             // as if we were classifying the attribute type itself.
             if (symbol.IsConstructor() && name.IsParentKind(SyntaxKind.Attribute))
@@ -205,6 +241,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Classification.Classifiers
                 case ILocalSymbol localSymbol:
                     token = name.GetNameToken();
                     classifiedSpan = new ClassifiedSpan(token.Span, GetClassificationForLocal(localSymbol));
+                    return true;
+                case ILabelSymbol labelSymbol:
+                    token = name.GetNameToken();
+                    classifiedSpan = new ClassifiedSpan(token.Span, ClassificationTypeNames.LabelName);
                     return true;
             }
 
@@ -302,6 +342,35 @@ namespace Microsoft.CodeAnalysis.CSharp.Classification.Classifiers
             }
 
             return symbolInfo.Symbol;
+        }
+
+        private bool TryClassifyAsNamespace(
+            NameSyntax name,
+            SymbolInfo symbolInfo,
+            ArrayBuilder<ClassifiedSpan> result)
+        {
+            if (name is IdentifierNameSyntax
+                && symbolInfo.Symbol == null
+                && IsInNamespaceDeclarationOrUsingDirective(name))
+            {
+                result.Add(new ClassifiedSpan(name.Span, ClassificationTypeNames.NamespaceName));
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsInNamespaceDeclarationOrUsingDirective(NameSyntax name)
+        {
+            while (name.Parent is NameSyntax parentName)
+            {
+                name = parentName;
+            }
+
+            // Because this check runs after the TryClassifySymbol we can assume
+            // non-classified names are namespace names.
+            return name.IsParentKind(SyntaxKind.NamespaceDeclaration)
+                || name.IsParentKind(SyntaxKind.UsingDirective);
         }
 
         private bool TryClassifyFromIdentifier(

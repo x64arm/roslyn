@@ -89,6 +89,38 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.Classification
         }
 
         #endregion
+        #region Operator - Overload
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.OperatorOverload)]
+        [BaseDefinition(PredefinedClassificationTypeNames.Operator)]
+        [Name(ClassificationTypeNames.OperatorOverload)]
+        [Order(After = PredefinedClassificationTypeNames.Operator)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class OperatorOverloadFormatDefinition : ClassificationFormatDefinition
+        {
+            private OperatorOverloadFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.Operator_Overload;
+            }
+        }
+        #endregion
+        #region Keyword - Control
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.ControlKeyword)]
+        [Name(ClassificationTypeNames.ControlKeyword)]
+        [Order(After = ClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class ControlKeywordFormatDefinition : ClassificationFormatDefinition
+        {
+            private ControlKeywordFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.Keyword_Control;
+            }
+        }
+        #endregion
+
 
         #region User Types - Classes
         [Export(typeof(EditorFormatDefinition))]
@@ -205,6 +237,183 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.Classification
             {
                 this.DisplayName = EditorFeaturesResources.User_Types_Type_Parameters;
                 this.ForegroundColor = Color.FromRgb(0x2B, 0x91, 0xAF);
+            }
+        }
+        #endregion
+
+        #region User Members - Field Name 
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.FieldName)]
+        [Name(ClassificationTypeNames.FieldName)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [Order(After = PredefinedClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class UserSymbolsFieldNameFormatDefinition : ClassificationFormatDefinition
+        {
+            private UserSymbolsFieldNameFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.User_Symbols_Fields;
+            }
+        }
+        #endregion
+        #region User Symbols - Enum Member Name 
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.EnumMemberName)]
+        [Name(ClassificationTypeNames.EnumMemberName)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [Order(After = PredefinedClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class UserSymbolsEnumMemberNameFormatDefinition : ClassificationFormatDefinition
+        {
+            private UserSymbolsEnumMemberNameFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.User_Symbols_Enum_Members;
+            }
+        }
+        #endregion
+        #region User Symbols - Constant Name 
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.ConstantName)]
+        [Name(ClassificationTypeNames.ConstantName)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [Order(After = PredefinedClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class UserSymbolsConstantNameFormatDefinition : ClassificationFormatDefinition
+        {
+            private UserSymbolsConstantNameFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.User_Symbols_Constants;
+            }
+        }
+        #endregion
+        #region User Symbols - Local Name 
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.LocalName)]
+        [Name(ClassificationTypeNames.LocalName)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [Order(After = PredefinedClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class UserSymbolsLocalNameFormatDefinition : ClassificationFormatDefinition
+        {
+            private UserSymbolsLocalNameFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.User_Symbols_Locals;
+            }
+        }
+        #endregion
+        #region User Symbols - Parameter Name 
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.ParameterName)]
+        [Name(ClassificationTypeNames.ParameterName)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [Order(After = PredefinedClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class UserSymbolsParameterNameFormatDefinition : ClassificationFormatDefinition
+        {
+            private UserSymbolsParameterNameFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.User_Symbols_Parameters;
+            }
+        }
+        #endregion
+        #region User Symbols - Method Name 
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.MethodName)]
+        [Name(ClassificationTypeNames.MethodName)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [Order(After = PredefinedClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class UserSymbolsMethodNameFormatDefinition : ClassificationFormatDefinition
+        {
+            private UserSymbolsMethodNameFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.User_Symbols_Methods;
+            }
+        }
+        #endregion
+        #region User Symbols - Extension Method Name 
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.ExtensionMethodName)]
+        [Name(ClassificationTypeNames.ExtensionMethodName)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [Order(After = PredefinedClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class UserSymbolsExtensionMethodNameFormatDefinition : ClassificationFormatDefinition
+        {
+            private UserSymbolsExtensionMethodNameFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.User_Symbols_Extension_Methods;
+            }
+        }
+        #endregion
+        #region User Symbols - Property Name 
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.PropertyName)]
+        [Name(ClassificationTypeNames.PropertyName)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [Order(After = PredefinedClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class UserSymbolsPropertyNameFormatDefinition : ClassificationFormatDefinition
+        {
+            private UserSymbolsPropertyNameFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.User_Symbols_Properties;
+            }
+        }
+        #endregion
+        #region User Symbols - Event Name 
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.EventName)]
+        [Name(ClassificationTypeNames.EventName)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [Order(After = PredefinedClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class UserSymbolsEventNameFormatDefinition : ClassificationFormatDefinition
+        {
+            private UserSymbolsEventNameFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.User_Symbols_Events;
+            }
+        }
+        #endregion
+        #region User Symbols - Namespace Name 
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.NamespaceName)]
+        [Name(ClassificationTypeNames.NamespaceName)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [Order(After = PredefinedClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class UserSymbolsNamespaceNameFormatDefinition : ClassificationFormatDefinition
+        {
+            private UserSymbolsNamespaceNameFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.User_Symbols_Namespaces;
+            }
+        }
+        #endregion
+        #region User Symbols - Label Name 
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.LabelName)]
+        [Name(ClassificationTypeNames.LabelName)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [Order(After = PredefinedClassificationTypeNames.Keyword)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class UserSymbolsLabelNameFormatDefinition : ClassificationFormatDefinition
+        {
+            private UserSymbolsLabelNameFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.User_Symbols_Labels;
             }
         }
         #endregion
@@ -705,6 +914,24 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.Classification
             {
                 this.DisplayName = EditorFeaturesResources.VB_XML_Literals_Text;
                 this.ForegroundColor = Color.FromRgb(85, 85, 85); // HC_LIGHTBLACK
+            }
+        }
+        #endregion
+
+        #region Symbol - Static
+        [Export(typeof(EditorFormatDefinition))]
+        [ClassificationType(ClassificationTypeNames = ClassificationTypeNames.StaticSymbol)]
+        [Name(ClassificationTypeNames.StaticSymbol)]
+        [Order(After = PredefinedClassificationTypeNames.Identifier)]
+        [UserVisible(true)]
+        [ExcludeFromCodeCoverage]
+        private class SymbolStaticFormatDefinition : ClassificationFormatDefinition
+        {
+            private SymbolStaticFormatDefinition()
+            {
+                this.DisplayName = EditorFeaturesResources.Symbol_Static;
+                this.BackgroundCustomizable = false;
+                this.ForegroundCustomizable = false;
             }
         }
         #endregion
