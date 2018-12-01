@@ -14,7 +14,6 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using Microsoft.CodeAnalysis.Editor.Implementation.Highlighting;
 using Microsoft.CodeAnalysis.Editor.Shared.Extensions;
-using Microsoft.Test.Apex.VisualStudio;
 using Microsoft.VisualStudio.IntegrationTest.Utilities.Common;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -35,12 +34,15 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
     {
         private static readonly Guid IWpfTextViewId = new Guid("8C40265E-9FDB-4F54-A0FD-EBB72B7D0476");
 
-        public Editor_InProc(VisualStudioHost visualStudioHost) : base(visualStudioHost)  { }
+        private Editor_InProc() { }
+
+        public static Editor_InProc Create()
+            => new Editor_InProc();
 
         protected override IWpfTextView GetActiveTextView()
             => GetActiveTextViewHost().TextView;
 
-        private IVsTextView GetActiveVsTextView()
+        private static IVsTextView GetActiveVsTextView()
         {
             var vsTextManager = GetGlobalService<SVsTextManager, IVsTextManager>();
 
@@ -50,7 +52,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
             return vsTextView;
         }
 
-        private IWpfTextViewHost GetActiveTextViewHost()
+        private static IWpfTextViewHost GetActiveTextViewHost()
         {
             // The active text view might not have finished composing yet, waiting for the application to 'idle'
             // means that it is done pumping messages (including WM_PAINT) and the window should return the correct text view
@@ -101,7 +103,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
             => ExecuteOnActiveView(view =>
             {
                 var textSnapshot = view.TextSnapshot;
-                SelectText(oldText);                
+                SelectText(oldText);
                 var replacementSpan = new SnapshotSpan(textSnapshot, view.Selection.Start.Position, view.Selection.End.Position - view.Selection.Start.Position);
                 view.TextBuffer.Replace(replacementSpan, newText);
             });
@@ -398,7 +400,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
                 delay: TimeSpan.FromMilliseconds(250));
         }
 
-        private IUIAutomationElement FindDialogWorker(string dialogAutomationName)
+        private static IUIAutomationElement FindDialogWorker(string dialogAutomationName)
         {
             var vsAutomationElement = Helper.Automation.ElementFromHandle((IntPtr)GetDTE().MainWindow.HWnd);
 
@@ -412,7 +414,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
             return vsAutomationElement.FindFirst(TreeScope.TreeScope_Descendants, elementCondition);
         }
 
-        private IUIAutomationElement FindNavigateTo()
+        private static IUIAutomationElement FindNavigateTo()
         {
             var vsAutomationElement = Helper.Automation.ElementFromHandle((IntPtr)GetDTE().MainWindow.HWnd);
             return vsAutomationElement.FindDescendantByAutomationId("PART_SearchBox");
@@ -663,7 +665,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
                     iEndLine = line,
                     iEndIndex = column
                 };
-                
+
                 Marshal.ThrowExceptionForHR(languageContextProvider.UpdateLanguageContext(0, textLines, new[] { span }, emptyUserContext));
                 Marshal.ThrowExceptionForHR(emptyUserContext.CountAttributes("keyword", VSConstants.S_FALSE, out var count));
                 for (int i = 0; i < count; i++)
@@ -682,7 +684,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
         public void GoToImplementation()
             => GetDTE().ExecuteCommand("Edit.GoToImplementation");
 
-		/// <summary>
+        /// <summary>
         /// Gets the spans where a particular tag appears in the active text view.
         /// </summary>
         /// <returns>

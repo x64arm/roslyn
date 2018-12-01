@@ -82,10 +82,10 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities
         /// </summary>
         public string InstallationPath { get; }
 
-        public VisualStudioInstance(VisualStudioHost visualStudioHost, ImmutableHashSet<string> supportedPackageIds, string installationPath)
+        public VisualStudioInstance(VisualStudioHost visualStudioHost, DTE dte, ImmutableHashSet<string> supportedPackageIds, string installationPath)
         {
             VisualStudioHost = visualStudioHost;
-            Dte = visualStudioHost.Dte;
+            Dte = dte;
             SupportedPackageIds = supportedPackageIds;
             InstallationPath = installationPath;
 
@@ -98,7 +98,10 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities
             _integrationService = IntegrationService.GetInstanceFromHostProcess(visualStudioHost.HostProcess);
 
             // Create marshal-by-ref object that runs in host-process.
-            _inProc = new VisualStudio_InProc(visualStudioHost);
+            _inProc = ExecuteInHostProcess<VisualStudio_InProc>(
+                type: typeof(VisualStudio_InProc),
+                methodName: nameof(VisualStudio_InProc.Create)
+                );
 
             // There is a lot of VS initialization code that goes on, so we want to wait for that to 'settle' before
             // we start executing any actual code.

@@ -51,12 +51,12 @@ namespace Roslyn.VisualStudio.IntegrationTests
 
         public VisualStudioInstance VisualStudioInstance { get; private set; }
 
-        public virtual void Initialize()
+        public virtual async Task InitializeAsync()
         {
             try
             {
                 var requiredPackageIds = SharedIntegrationHostFixture.RequiredPackageIds;
-               _visualStudioContext = _instanceFactory.GetNewOrUsedInstanceAsync(this.Operations, SharedIntegrationHostFixture.RequiredPackageIds);
+               _visualStudioContext = await _instanceFactory.GetNewOrUsedInstanceAsync(this.Operations, SharedIntegrationHostFixture.RequiredPackageIds);
                 VisualStudioInstance = _visualStudioContext.Instance;
             }
             catch

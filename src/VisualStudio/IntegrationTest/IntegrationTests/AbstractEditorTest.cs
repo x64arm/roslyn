@@ -35,9 +35,9 @@ namespace Roslyn.VisualStudio.IntegrationTests
         protected abstract string LanguageName { get; }
 
         [TestInitialize]
-        public override void Initialize()
+        public override async Task InitializeAsync()
         {
-            base.Initialize();
+            await base.InitializeAsync().ConfigureAwait(true);
 
             if (_solutionName != null)
             {
