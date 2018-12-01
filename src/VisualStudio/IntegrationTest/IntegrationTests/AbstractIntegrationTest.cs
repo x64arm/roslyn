@@ -1,17 +1,21 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Test.Apex.VisualStudio;
 using Microsoft.VisualStudio.IntegrationTest.Utilities;
 using Microsoft.VisualStudio.IntegrationTest.Utilities.Harness;
 using Microsoft.VisualStudio.IntegrationTest.Utilities.Input;
-using Xunit;
+using Microsoft.VisualStudio.Setup.Configuration;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Roslyn.VisualStudio.IntegrationTests
 {
-    [CaptureTestName]
-    public abstract class AbstractIntegrationTest : IAsyncLifetime, IDisposable
+    public abstract class AbstractIntegrationTest : VisualStudioHostTest, IDisposable
     {
         protected readonly string ProjectName = "TestProj";
         protected readonly string SolutionName = "TestSolution";
@@ -20,13 +24,18 @@ namespace Roslyn.VisualStudio.IntegrationTests
         private readonly VisualStudioInstanceFactory _instanceFactory;
         private VisualStudioInstanceContext _visualStudioContext;
 
-        protected AbstractIntegrationTest(VisualStudioInstanceFactory instanceFactory)
+        /// <summary>
+        /// Identifies the first time a Visual Studio instance is launched during an integration test run.
+        /// </summary>
+        private static bool _firstLaunch = true;
+
+        protected AbstractIntegrationTest()
         {
-            Assert.Equal(ApartmentState.STA, Thread.CurrentThread.GetApartmentState());
+            Assert.AreEqual(ApartmentState.STA, Thread.CurrentThread.GetApartmentState());
 
             // Install a COM message filter to handle retry operations when the first attempt fails
             _messageFilter = RegisterMessageFilter();
-            _instanceFactory = instanceFactory;
+            _instanceFactory = new VisualStudioInstanceFactory();
 
             try
             {
@@ -40,13 +49,15 @@ namespace Roslyn.VisualStudio.IntegrationTests
             }
         }
 
-        public VisualStudioInstance VisualStudio => _visualStudioContext?.Instance;
+        public VisualStudioInstance VisualStudioInstance { get; private set; }
 
-        public virtual async Task InitializeAsync()
+        public virtual void Initialize()
         {
             try
             {
-                _visualStudioContext = await _instanceFactory.GetNewOrUsedInstanceAsync(SharedIntegrationHostFixture.RequiredPackageIds).ConfigureAwait(false);
+                var requiredPackageIds = SharedIntegrationHostFixture.RequiredPackageIds;
+               _visualStudioContext = _instanceFactory.GetNewOrUsedInstanceAsync(this.Operations, SharedIntegrationHostFixture.RequiredPackageIds);
+                VisualStudioInstance = _visualStudioContext.Instance;
             }
             catch
             {

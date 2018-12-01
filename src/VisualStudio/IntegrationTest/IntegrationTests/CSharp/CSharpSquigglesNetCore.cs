@@ -2,28 +2,28 @@
 
 using Microsoft.CodeAnalysis.Test.Utilities;
 using Microsoft.VisualStudio.IntegrationTest.Utilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Roslyn.Test.Utilities;
-using Xunit;
 
 namespace Roslyn.VisualStudio.IntegrationTests.CSharp
 {
-    [Collection(nameof(SharedIntegrationHostFixture))]
+    [TestClass]
     public class CSharpSquigglesNetCore : CSharpSquigglesCommon
     {
-        public CSharpSquigglesNetCore(VisualStudioInstanceFactory instanceFactory)
-            :base(instanceFactory, WellKnownProjectTemplates.CSharpNetCoreClassLibrary)
+        public CSharpSquigglesNetCore( )
+            :base( WellKnownProjectTemplates.CSharpNetCoreClassLibrary)
         {
         }
 
-        [WpfFact(Skip = "https://github.com/dotnet/roslyn/issues/19091"), Trait(Traits.Feature, Traits.Features.ErrorSquiggles)]
-        [Trait(Traits.Feature, Traits.Features.NetCore)]
+        [TestMethod, Ignore("https://github.com/dotnet/roslyn/issues/19091"), TestCategory(Traits.Features.ErrorSquiggles)]
+        [TestCategory(Traits.Features.NetCore)]
         public override void VerifySyntaxErrorSquiggles()
         {
             base.VerifySyntaxErrorSquiggles();
         }
 
-        [WpfFact(Skip = "https://github.com/dotnet/roslyn/issues/19091"), Trait(Traits.Feature, Traits.Features.ErrorSquiggles)]
-        [Trait(Traits.Feature, Traits.Features.NetCore)]
+        [TestMethod, Ignore("https://github.com/dotnet/roslyn/issues/19091"), TestCategory(Traits.Features.ErrorSquiggles)]
+        [TestCategory(Traits.Features.NetCore)]
         public override void VerifySemanticErrorSquiggles()
         {
             base.VerifySemanticErrorSquiggles();

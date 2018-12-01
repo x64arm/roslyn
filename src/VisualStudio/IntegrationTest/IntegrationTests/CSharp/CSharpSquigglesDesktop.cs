@@ -2,26 +2,26 @@
 
 using Microsoft.CodeAnalysis.Test.Utilities;
 using Microsoft.VisualStudio.IntegrationTest.Utilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Roslyn.Test.Utilities;
-using Xunit;
 
 namespace Roslyn.VisualStudio.IntegrationTests.CSharp
 {
-    [Collection(nameof(SharedIntegrationHostFixture))]
+    [TestClass]
     public class CSharpSquigglesDesktop : CSharpSquigglesCommon
     {
-        public CSharpSquigglesDesktop(VisualStudioInstanceFactory instanceFactory)
-            :base(instanceFactory, WellKnownProjectTemplates.ClassLibrary)
+        public CSharpSquigglesDesktop( )
+            :base( WellKnownProjectTemplates.ClassLibrary)
         {
         }
 
-        [WpfFact(Skip = "https://github.com/dotnet/roslyn/issues/19091"), Trait(Traits.Feature, Traits.Features.ErrorSquiggles)]
+        [TestMethod, Ignore("https://github.com/dotnet/roslyn/issues/19091"), TestCategory(Traits.Features.ErrorSquiggles)]
         public override void VerifySyntaxErrorSquiggles()
         {
             base.VerifySyntaxErrorSquiggles();
         }
 
-        [WpfFact(Skip = "https://github.com/dotnet/roslyn/issues/19091"), Trait(Traits.Feature, Traits.Features.ErrorSquiggles)]
+        [TestMethod, Ignore("https://github.com/dotnet/roslyn/issues/19091"), TestCategory(Traits.Features.ErrorSquiggles)]
         public override void VerifySemanticErrorSquiggles()
         {
             base.VerifySemanticErrorSquiggles();

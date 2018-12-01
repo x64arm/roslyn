@@ -2,32 +2,29 @@
 
 using Microsoft.CodeAnalysis.Test.Utilities;
 using Microsoft.VisualStudio.IntegrationTest.Utilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Roslyn.Test.Utilities;
-using Xunit;
 
 namespace Roslyn.VisualStudio.IntegrationTests.CSharp
 {
-    [Collection(nameof(SharedIntegrationHostFixture))]
+    [TestClass]
     public class CSharpErrorListDesktop : CSharpErrorListCommon
     {
-        public CSharpErrorListDesktop(VisualStudioInstanceFactory instanceFactory)
-            : base(instanceFactory, WellKnownProjectTemplates.ClassLibrary)
-        {
-        }
+        public CSharpErrorListDesktop() : base(WellKnownProjectTemplates.ClassLibrary) { }
 
-        [WpfFact(Skip = "https://github.com/dotnet/roslyn/issues/18996"), Trait(Traits.Feature, Traits.Features.ErrorList)]
+        [TestMethod, Ignore("https://github.com/dotnet/roslyn/issues/18996"), TestCategory(Traits.Features.ErrorList)]
         public override void ErrorList()
         {
             base.ErrorList();
         }
 
-        [WpfFact(Skip = "https://github.com/dotnet/roslyn/issues/18996"), Trait(Traits.Feature, Traits.Features.ErrorList)]
+        [TestMethod, Ignore("https://github.com/dotnet/roslyn/issues/18996"), TestCategory(Traits.Features.ErrorList)]
         public override void ErrorLevelWarning()
         {
             base.ErrorLevelWarning();
         }
 
-        [WpfFact, Trait(Traits.Feature, Traits.Features.ErrorList)]
+        [TestMethod, TestCategory(Traits.Features.ErrorList)]
         public override void ErrorsDuringMethodBodyEditing()
         {
             base.ErrorsDuringMethodBodyEditing();

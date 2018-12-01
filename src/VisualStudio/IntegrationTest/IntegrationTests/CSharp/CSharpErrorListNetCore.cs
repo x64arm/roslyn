@@ -2,35 +2,32 @@
 
 using Microsoft.CodeAnalysis.Test.Utilities;
 using Microsoft.VisualStudio.IntegrationTest.Utilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Roslyn.Test.Utilities;
-using Xunit;
 
 namespace Roslyn.VisualStudio.IntegrationTests.CSharp
 {
-    [Collection(nameof(SharedIntegrationHostFixture))]
+    [TestClass]
     public class CSharpErrorListNetCore : CSharpErrorListCommon
     {
-        public CSharpErrorListNetCore(VisualStudioInstanceFactory instanceFactory)
-            : base(instanceFactory, WellKnownProjectTemplates.CSharpNetCoreClassLibrary)
-        {
-        }
+        public CSharpErrorListNetCore() : base(WellKnownProjectTemplates.CSharpNetCoreClassLibrary) { }
 
-        [WpfFact(Skip = "https://github.com/dotnet/roslyn/issues/18996"), Trait(Traits.Feature, Traits.Features.ErrorList)]
-        [Trait(Traits.Feature, Traits.Features.NetCore)]
+        [TestMethod, Ignore("https://github.com/dotnet/roslyn/issues/18996"), TestCategory(Traits.Features.ErrorList)]
+        [TestCategory(Traits.Features.NetCore)]
         public override void ErrorList()
         {
             base.ErrorList();
         }
 
-        [WpfFact(Skip = "https://github.com/dotnet/roslyn/issues/18996"), Trait(Traits.Feature, Traits.Features.ErrorList)]
-        [Trait(Traits.Feature, Traits.Features.NetCore)]
+        [TestMethod, Ignore("https://github.com/dotnet/roslyn/issues/18996"), TestCategory(Traits.Features.ErrorList)]
+        [TestCategory(Traits.Features.NetCore)]
         public override void ErrorLevelWarning()
         {
             base.ErrorLevelWarning();
         }
 
-        [WpfFact(Skip = "https://github.com/dotnet/roslyn/issues/19090"), Trait(Traits.Feature, Traits.Features.ErrorList)]
-        [Trait(Traits.Feature, Traits.Features.NetCore)]
+        [TestMethod, Ignore("https://github.com/dotnet/roslyn/issues/19090"), TestCategory(Traits.Features.ErrorList)]
+        [TestCategory(Traits.Features.NetCore)]
         public override void ErrorsDuringMethodBodyEditing()
         {
             base.ErrorsDuringMethodBodyEditing();

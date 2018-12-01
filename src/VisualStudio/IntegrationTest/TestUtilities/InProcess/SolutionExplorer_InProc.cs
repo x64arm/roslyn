@@ -9,6 +9,7 @@ using System.Threading;
 using System.Xml.Linq;
 using EnvDTE80;
 using Microsoft.CodeAnalysis;
+using Microsoft.Test.Apex.VisualStudio;
 using Microsoft.VisualStudio.ProjectSystem.Properties;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -23,17 +24,18 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
         private Solution2 _solution;
         private string _fileName;
 
-        private static readonly IDictionary<string, string> _csharpProjectTemplates = InitializeCSharpProjectTemplates();
-        private static readonly IDictionary<string, string> _visualBasicProjectTemplates = InitializeVisualBasicProjectTemplates();
+        private readonly IDictionary<string, string> _csharpProjectTemplates;
+        private readonly IDictionary<string, string> _visualBasicProjectTemplates;
 
-        private SolutionExplorer_InProc() { }
-
-        public static SolutionExplorer_InProc Create()
-            => new SolutionExplorer_InProc();
-
-        private static IDictionary<string, string> InitializeCSharpProjectTemplates()
+        public SolutionExplorer_InProc(VisualStudioHost visualStudioHost) : base(visualStudioHost)
         {
-            var localeID = GetDTE().LocaleID;
+            _csharpProjectTemplates = InitializeCSharpProjectTemplates();
+            _visualBasicProjectTemplates = InitializeVisualBasicProjectTemplates();
+        }
+
+        private IDictionary<string, string> InitializeCSharpProjectTemplates()
+        {
+            var localeID = _visualStudioHost.Dte.LocaleID;
 
             return new Dictionary<string, string>
             {
@@ -46,9 +48,9 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
             };
         }
 
-        private static IDictionary<string, string> InitializeVisualBasicProjectTemplates()
+        private IDictionary<string, string> InitializeVisualBasicProjectTemplates()
         {
-            var localeID = GetDTE().LocaleID;
+            var localeID = _visualStudioHost.Dte.LocaleID;
 
             return new Dictionary<string, string>
             {
@@ -493,7 +495,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess
 
             GetDTE().ItemOperations.NewFile(itemTemplate, fileName);
         }
-            
+
 
         public void SetFileContents(string projectName, string relativeFilePath, string contents)
         {
