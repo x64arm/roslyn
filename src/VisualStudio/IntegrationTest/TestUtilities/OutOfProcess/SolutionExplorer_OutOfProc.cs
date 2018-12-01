@@ -2,6 +2,7 @@
 
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis.Shared.TestHooks;
+using Microsoft.VisualStudio.IntegrationTest.Utilities.Components;
 using Microsoft.VisualStudio.IntegrationTest.Utilities.InProcess;
 using ProjectUtils = Microsoft.VisualStudio.IntegrationTest.Utilities.Common.ProjectUtils;
 
@@ -12,6 +13,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.OutOfProcess
         public Verifier Verify { get; }
 
         private readonly SolutionExplorer_InProc _inProc;
+        private readonly SolutionExplorer _solutionExplorer;
         private readonly VisualStudioInstance _instance;
 
         public SolutionExplorer_OutOfProc(VisualStudioInstance visualStudioInstance)
@@ -19,11 +21,12 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.OutOfProcess
         {
             _instance = visualStudioInstance;
             _inProc = CreateInProcComponent<SolutionExplorer_InProc>(visualStudioInstance);
+            _solutionExplorer = new SolutionExplorer(_inProc, visualStudioInstance.VisualStudioHost);
             Verify = new Verifier(this);
         }
 
         public void CloseSolution(bool saveFirst = false)
-            => _inProc.CloseSolution(saveFirst);
+            => _solutionExplorer.CloseSolution(saveFirst);
 
         /// <summary>
         /// The full file path to the solution file.
@@ -34,16 +37,16 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.OutOfProcess
         /// Creates and loads a new solution in the host process, optionally saving the existing solution if one exists.
         /// </summary>
         public void CreateSolution(string solutionName, bool saveExistingSolutionIfExists = false)
-            => _inProc.CreateSolution(solutionName, saveExistingSolutionIfExists);
+            => _solutionExplorer.CreateSolution(solutionName, saveExistingSolutionIfExists);
 
         public void CreateSolution(string solutionName, XElement solutionElement)
-            => _inProc.CreateSolution(solutionName, solutionElement.ToString());
+            => _solutionExplorer.CreateSolution(solutionName, solutionElement);
 
         public void OpenSolution(string path, bool saveExistingSolutionIfExists = false)
-            => _inProc.OpenSolution(path, saveExistingSolutionIfExists);
+            => _solutionExplorer.OpenSolution(path, saveExistingSolutionIfExists);
 
         public void AddProject(ProjectUtils.Project projectName, string projectTemplate, string languageName)
-            => _inProc.AddProject(projectName.Name, projectTemplate, languageName);
+            => _solutionExplorer.AddProject(projectName.Name, projectTemplate, languageName);
 
         public void AddProjectReference(ProjectUtils.Project fromProjectName, ProjectUtils.ProjectReference toProjectName)
         {
@@ -87,7 +90,7 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.OutOfProcess
             => _inProc.CleanUpOpenSolution();
 
         public void AddFile(ProjectUtils.Project project, string fileName, string contents = null, bool open = false)
-            => _inProc.AddFile(project.Name, fileName, contents, open);
+            => _solutionExplorer.AddFile(project.Name, fileName, contents, open);
 
         public void SetFileContents(ProjectUtils.Project project, string fileName, string contents)
             => _inProc.SetFileContents(project.Name, fileName, contents);
@@ -104,12 +107,12 @@ namespace Microsoft.VisualStudio.IntegrationTest.Utilities.OutOfProcess
         public void OpenFile(ProjectUtils.Project project, string fileName)
         {
             // Wireup to open files can happen asynchronously in the case we're being notified of changes on background threads.
-            _inProc.OpenFile(project.Name, fileName);
+            _solutionExplorer.OpenFile(project.Name, fileName);
             _instance.Workspace.WaitForAsyncOperations(FeatureAttribute.Workspace);
         }
 
         public void UpdateFile(string projectName, string fileName, string contents, bool open = false)
-            => _inProc.UpdateFile(projectName, fileName, contents, open);
+            => _solutionExplorer.UpdateFile(projectName, fileName, contents, open);
 
         public void RenameFile(ProjectUtils.Project project, string oldFileName, string newFileName)
         {
