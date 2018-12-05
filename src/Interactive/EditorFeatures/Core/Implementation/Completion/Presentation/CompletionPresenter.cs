@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.VisualStudio.InteractiveWindow.Commands;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 
@@ -20,17 +21,20 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.Completion.Presentation
     {
         private readonly ICompletionBroker _completionBroker;
         private readonly IGlyphService _glyphService;
+        private readonly IToolTipService _toolTipService;
 
         [ImportingConstructor]
         [Obsolete(MefConstruction.ImportingConstructorMessage, error: true)]
         public CompletionPresenter(
             IThreadingContext threadingContext,
             ICompletionBroker completionBroker,
-            IGlyphService glyphService)
+            IGlyphService glyphService,
+            IToolTipService toolTipService)
             : base(threadingContext)
         {
             _completionBroker = completionBroker;
             _glyphService = glyphService;
+            _toolTipService = toolTipService;
         }
 
         ICompletionPresenterSession IIntelliSensePresenter<ICompletionPresenterSession, ICompletionSession>.CreateSession(ITextView textView, ITextBuffer subjectBuffer, ICompletionSession sessionOpt)
@@ -38,7 +42,7 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.Completion.Presentation
             AssertIsForeground();
             return new CompletionPresenterSession(
                 ThreadingContext,
-                _completionBroker, _glyphService, textView, subjectBuffer);
+                _completionBroker, _glyphService, _toolTipService, textView, subjectBuffer);
         }
 
         ICompletionSource ICompletionSourceProvider.TryCreateCompletionSource(ITextBuffer textBuffer)

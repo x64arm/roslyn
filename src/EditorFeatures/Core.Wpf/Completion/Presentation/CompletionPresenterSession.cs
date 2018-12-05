@@ -4,12 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
+using Microsoft.CodeAnalysis.Classification;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Editor.Shared.Extensions;
 using Microsoft.CodeAnalysis.Editor.Shared.Utilities;
 using Microsoft.CodeAnalysis.Internal.Log;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Editor;
 using Roslyn.Utilities;
 
@@ -50,10 +52,16 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.IntelliSense.Completion.P
         private readonly CancellationTokenSource _trackLogSession;
         private IDisposable _logger;
 
+        // prototype
+        private IToolTipPresenter _toolTipPresenter;
+        private readonly IToolTipService _toolTipService;
+        // end
+
         public CompletionPresenterSession(
             IThreadingContext threadingContext,
             ICompletionBroker completionBroker,
             IGlyphService glyphService,
+            IToolTipService toolTipService,
             ITextView textView,
             ITextBuffer subjectBuffer)
             : base(threadingContext)
@@ -64,12 +72,14 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.IntelliSense.Completion.P
             SubjectBuffer = subjectBuffer;
 
             _trackLogSession = new CancellationTokenSource();
-            _logger = Logger.LogBlock(FunctionId.Intellisense_Completion, 
-                KeyValueLogMessage.Create(LogType.UserAction), 
+            _logger = Logger.LogBlock(FunctionId.Intellisense_Completion,
+                KeyValueLogMessage.Create(LogType.UserAction),
                 _trackLogSession.Token);
 
             _completionSet = new RoslynCompletionSet(this, textView, subjectBuffer);
             _completionSet.SelectionStatusChanged += OnCompletionSetSelectionStatusChanged;
+
+            _toolTipService = toolTipService;
         }
 
         public void PresentItems(
@@ -109,6 +119,14 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.IntelliSense.Completion.P
 
             if (_editorSessionOpt == null)
             {
+                if (SolutionLoadToolTip.Loading())
+                {
+                    _toolTipPresenter = _toolTipService.CreatePresenter(_textView, new ToolTipParameters(trackMouse: false, ignoreBufferChange: true));
+                    _toolTipPresenter.StartOrUpdate(triggerSpan,
+                        new[] { new ClassifiedTextElement(
+                        new ClassifiedTextRun(ClassificationTypeNames.Text, "Initializing IntelliSense …")) });
+                }
+
                 // We're tracking the caret.  Don't have the editor do it. 
                 // Map the span instead of a point to avoid affinity problems.
                 _editorSessionOpt = _completionBroker.CreateCompletionSession(
@@ -154,6 +172,8 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.IntelliSense.Completion.P
             object sender, ValueChangedEventArgs<CompletionSelectionStatus> eventArgs)
         {
             AssertIsForeground();
+
+            _toolTipPresenter?.Dismiss();
 
             if (_ignoreSelectionStatusChangedEvent || _textView.IsClosed)
             {
@@ -201,6 +221,8 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.IntelliSense.Completion.P
 
             _editorSessionOpt.Dismiss();
             _editorSessionOpt = null;
+
+            _toolTipPresenter?.Dismiss();
         }
 
         private bool ExecuteKeyboardCommand(IntellisenseKeyboardCommand command)

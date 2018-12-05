@@ -148,6 +148,13 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.IntelliSense.Completion.P
                     result.Inlines.Add(GetRun(part, _toolTipProvider._formatMap, _toolTipProvider._typeMap));
                 }
 
+                if (SolutionLoadToolTip.Loading())
+                {
+                    result.Inlines.Add(new LineBreak());
+                    result.Inlines.Add(new LineBreak());
+                    result.Inlines.Add(new Run("Initializing IntelliSense …"));
+                }
+
                 return result;
             }
 
@@ -171,6 +178,26 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.IntelliSense.Completion.P
 
                 return result;
             }
+        }
+    }
+
+    public static class SolutionLoadToolTip
+    {
+        public static DateTime? _lastTimeShow;
+
+        private static void EnsureTracking()
+        {
+            if (!_lastTimeShow.HasValue)
+            {
+                _lastTimeShow = DateTime.UtcNow;
+            }
+        }
+
+        public static bool Loading()
+        {
+            EnsureTracking();
+
+            return (DateTime.UtcNow - _lastTimeShow) < TimeSpan.FromMinutes(1);
         }
     }
 }
