@@ -10,7 +10,8 @@ using Microsoft.CodeAnalysis.RemoveUnusedParametersAndValues;
 
 namespace Microsoft.CodeAnalysis.CSharp.RemoveUnusedParametersAndValues
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    // Temporarily disabled to make RPS happy
+    //[DiagnosticAnalyzer(LanguageNames.CSharp)]
     internal class CSharpRemoveUnusedParametersAndValuesDiagnosticAnalyzer : AbstractRemoveUnusedParametersAndValuesDiagnosticAnalyzer
     {
         protected override Option<CodeStyleOption<UnusedValuePreference>> UnusedValueExpressionStatementOption
