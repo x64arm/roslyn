@@ -10,7 +10,8 @@ Imports Microsoft.CodeAnalysis.VisualBasic.Syntax
 
 Namespace Microsoft.CodeAnalysis.VisualBasic.RemoveUnusedParametersAndValues
 
-    <DiagnosticAnalyzer(LanguageNames.VisualBasic)>
+    'Temporarily disabled to make RPS happy
+    '<DiagnosticAnalyzer(LanguageNames.VisualBasic)>
     Friend NotInheritable Class VisualBasicRemoveUnusedParametersAndValuesDiagnosticAnalyzer
         Inherits AbstractRemoveUnusedParametersAndValuesDiagnosticAnalyzer
         Protected Overrides ReadOnly Property UnusedValueExpressionStatementOption As [Option](Of CodeStyleOption(Of UnusedValuePreference))
