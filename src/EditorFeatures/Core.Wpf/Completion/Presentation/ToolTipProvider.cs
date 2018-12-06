@@ -181,7 +181,7 @@ namespace Microsoft.CodeAnalysis.Editor.Implementation.IntelliSense.Completion.P
         }
     }
 
-    public static class SolutionLoadToolTip
+    internal static class SolutionLoadToolTip
     {
         public static DateTime? _lastTimeShow;
 
