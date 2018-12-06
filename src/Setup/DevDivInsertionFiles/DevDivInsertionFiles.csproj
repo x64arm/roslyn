@@ -15,6 +15,7 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <OutputType>Library</OutputType>
+    <ApplyPartialNgenOptimization>true</ApplyPartialNgenOptimization>
   </PropertyGroup>
   
   <ItemGroup>
@@ -25,9 +26,8 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <_DevDivInsertionFilesDir>$(ArtifactsConfigurationDir)DevDivInsertionFiles\</_DevDivInsertionFilesDir>
-    <_DependentAssemblyVersionsFile>$(_DevDivInsertionFilesDir)DependentAssemblyVersions.csv</_DependentAssemblyVersionsFile>
-    <_ManagedDependenciesDir>$(ArtifactsConfigurationDir)DevDivPackages\ManagedDependencies\</_ManagedDependenciesDir>
+    <_DependentAssemblyVersionsFile>$(DevDivPackagesDir)DependentAssemblyVersions.csv</_DependentAssemblyVersionsFile>
+    <_ManagedDependenciesDir>$(DevDivPackagesDir)ManagedDependencies\</_ManagedDependenciesDir>
     <_OptimizedDependenciesDir>$(ArtifactsTmpDir)OptimizedDependencies\</_OptimizedDependenciesDir>
     <_OptimizedNuGetPackageVersionSuffix Condition="'$(OfficialBuild)' != 'true'">vs-ci</_OptimizedNuGetPackageVersionSuffix>
     <_OptimizedNuGetPackageVersionSuffix Condition="'$(OfficialBuild)' == 'true'">vs-$(VersionSuffixDateStamp)-$(VersionSuffixBuildOfTheDayPadded)</_OptimizedNuGetPackageVersionSuffix>
@@ -135,7 +135,9 @@
         <_PreviousOptimizedFile>$([System.IO.Path]::Combine($(IbcOptimizationDataDir), '$([System.IO.Path]::GetFileNameWithoutExtension(%(_DependencyWithExpectedMetadata.DevEnvLib))).pgo'))</_PreviousOptimizedFile>
       </_DependencyWithExpectedMetadata>
 
-      <_DependencyWithOptimizationData Include="@(_DependencyWithExpectedMetadata)" Condition="'%(_DependencyWithExpectedMetadata.OverwriteNgenOptimizationData)' == 'true'" />
+      <_DependencyWithOptimizationData Include="@(_DependencyWithExpectedMetadata)" 
+                                       Condition="'%(_DependencyWithExpectedMetadata.OverwriteNgenOptimizationData)' == 'true' and '$(ApplyPartialNgenOptimization)' == 'true'" />
+      
       <_DependencyWithoutOptimizationData Include="@(_DependencyWithExpectedMetadata)" Exclude="@(_DependencyWithOptimizationData)"/>
 
       <OptimizeAssembly Include="%(_DependencyWithOptimizationData._OptimizeAssembly)" PreviousOptimizedFile="%(_DependencyWithOptimizationData._PreviousOptimizedFile)" />
@@ -151,7 +153,7 @@
           Inputs="$(MSBuildAllProjects)"
           Outputs="$(_DependentAssemblyVersionsFile)">
 
-    <MakeDir Directories="$(_DevDivInsertionFilesDir)"/>
+    <MakeDir Directories="$(DevDivPackagesDir)"/>
     <WriteLinesToFile Lines="@(_Dependency->'%(_AssemblyName),%(_AssemblyVersion)')" File="$(_DependentAssemblyVersionsFile)" Overwrite="true"/>
 
     <ItemGroup>
