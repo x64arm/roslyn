@@ -181,13 +181,14 @@ function Build-OptProfData() {
     $optProfToolExe = Join-Path $optProfToolDir "tools\roslyn.optprof.exe"
     $configFile = Join-Path $RepoRoot "eng\config\OptProf.json"
     $insertionFolder = Join-Path $VSSetupDir "Insertion"
-    $outputFolder = Join-Path $insertionFolder "OptProf"
-    Write-Host "Generating optprof data using '$configFile' into '$outputFolder'"
-    $optProfArgs = "--configFile $configFile --insertionFolder $insertionFolder --outputFolder $outputFolder"
+    $outputFolder = Join-Path $ArtifactsDir "OptProf\$configuration"
+    $dataFolder = Join-Path $outputFolder "Data"
+    Write-Host "Generating optprof data using '$configFile' into '$dataFolder'"
+    $optProfArgs = "--configFile $configFile --insertionFolder $insertionFolder --outputFolder $dataFolder"
     Exec-Console $optProfToolExe $optProfArgs
 
     # Write Out Branch we are inserting into
-    $vsBranchFolder = Join-Path $insertionFolder "BranchInfo"
+    $vsBranchFolder = Join-Path $outputFolder "BranchInfo"
     New-Item -ItemType Directory -Force -Path $vsBranchFolder
     $vsBranchText = Join-Path $vsBranchFolder "vsbranch.txt"
     # InsertTargetBranchFullName is defined in .vsts-ci.yml

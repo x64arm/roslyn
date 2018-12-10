@@ -63,7 +63,7 @@ jobs:
     inputs:
       dropServiceURI: 'https://devdiv.artifacts.visualstudio.com'
       buildNumber: 'ProfilingInputs/DevDiv/$(Build.Repository.Name)/$(Build.SourceBranchName)/$(Build.BuildId)'
-      sourcePath: '$(Build.SourcesDirectory)\artifacts\VSSetup\$(BuildConfiguration)\Insertion\OptProf'
+      sourcePath: '$(Build.SourcesDirectory)\artifacts\OptProf\$(BuildConfiguration)\Data'
       toLowerCase: false
       usePat: false
     displayName: 'OPTPROF - Publish to Artifact Services - ProfilingInputs'
@@ -107,7 +107,7 @@ jobs:
   # Publish scripts to get the branch of VS that this inserts into
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.SourcesDirectory)\artifacts\VSSetup\$(BuildConfiguration)\Insertion\BranchInfo'
+      PathtoPublish: '$(Build.SourcesDirectory)\artifacts\OptProf\$(BuildConfiguration)\BranchInfo'
       ArtifactName: BranchInfo
       ArtifactType: Container
     displayName: 'OPTPROF - Publish Artifact: BranchInfo'
