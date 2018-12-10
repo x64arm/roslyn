@@ -27,7 +27,6 @@
 
   <PropertyGroup>
     <_DependentAssemblyVersionsFile>$(DevDivPackagesDir)DependentAssemblyVersions.csv</_DependentAssemblyVersionsFile>
-    <_ManagedDependenciesDir>$(DevDivPackagesDir)ManagedDependencies\</_ManagedDependenciesDir>
     <_OptimizedDependenciesDir>$(ArtifactsTmpDir)OptimizedDependencies\</_OptimizedDependenciesDir>
     <_OptimizedNuGetPackageVersionSuffix Condition="'$(OfficialBuild)' != 'true'">vs-ci</_OptimizedNuGetPackageVersionSuffix>
     <_OptimizedNuGetPackageVersionSuffix Condition="'$(OfficialBuild)' == 'true'">vs-$(VersionSuffixDateStamp)-$(VersionSuffixBuildOfTheDayPadded)</_OptimizedNuGetPackageVersionSuffix>
@@ -179,11 +178,11 @@
           Condition="'$(Configuration)' == 'Release' and '$(ContinuousIntegrationBuild)' == 'true'"
           DependsOnTargets="_CalculateDependenciesToInsert;_UnpackOptimizedDependencies;ApplyOptimizations">
 
-    <MakeDir Directories="$(_ManagedDependenciesDir)"/>
+    <MakeDir Directories="$(DevDivPackagesDir)"/>
 
     <!-- Repack optimized dependencies -->
     <Roslyn.Tools.ReplacePackageParts SourcePackage="%(_DependencyWithOptimizationData._NuGetPackageDir)%(_DependencyWithOptimizationData._NuGetPackageFileName)"
-                                      DestinationFolder="$(_ManagedDependenciesDir)"
+                                      DestinationFolder="$(DevDivPackagesDir)"
                                       NewVersionSuffix="$(_OptimizedNuGetPackageVersionSuffix)"
                                       Parts="%(_DependencyWithOptimizationData.DevEnvLib)"
                                       ReplacementFiles="%(_DependencyWithOptimizationData._OptimizeAssembly)"
@@ -192,7 +191,7 @@
     </Roslyn.Tools.ReplacePackageParts>
 
     <!-- Copy unoptimized dependencies -->
-    <Copy SourceFiles="@(_DependencyWithoutOptimizationData->'%(_NuGetPackageDir)%(_NuGetPackageFileName)')" DestinationFolder="$(_ManagedDependenciesDir)">
+    <Copy SourceFiles="@(_DependencyWithoutOptimizationData->'%(_NuGetPackageDir)%(_NuGetPackageFileName)')" DestinationFolder="$(DevDivPackagesDir)">
       <Output TaskParameter="CopiedFiles" ItemName="FileWrites"/>
     </Copy>
   </Target>

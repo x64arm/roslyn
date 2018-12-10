@@ -18,7 +18,7 @@
     <GenerateRuntimeConfigurationFiles Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">false</GenerateRuntimeConfigurationFiles>
 
     <!-- Place VS insertion (CoreXT) packages to a separate directory -->
-    <PackageOutputPath Condition="'$(IsVisualStudioInsertionPackage)' == 'true'">$(DevDivPackagesDir)Roslyn\</PackageOutputPath>
+    <PackageOutputPath Condition="'$(IsVisualStudioInsertionPackage)' == 'true'">$(DevDivPackagesDir)</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(Language)' == 'CSharp' and '$(TargetFramework)' == 'net20'">
