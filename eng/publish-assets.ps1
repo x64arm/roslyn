@@ -153,7 +153,12 @@ try {
     $dotnet = Ensure-DotnetSdk
 
     Write-Host "Downloading PublishData.json"
-    $publishFileContent = (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dotnet/roslyn/master/eng/config/PublishData.json" -UseBasicParsing).Content
+    try {
+      $publishFileContent = (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dotnet/roslyn/master/eng/config/PublishData.json" -UseBasicParsing).Content
+    }
+    catch {
+      $publishFileContent = (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dotnet/roslyn/master/build/config/PublishData.json" -UseBasicParsing).Content    
+    }
     $data = ConvertFrom-Json $publishFileContent
 
     if ($branchName -ne "" -and $releaseName -ne "") {
